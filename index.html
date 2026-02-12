@@ -143,16 +143,39 @@ const TREE = {
           children:[
             { id:"f11", label:"HLMI к 2047 (Grace)" },
             { id:"f12", label:"Сдвиг на 13 лет" },
-            { id:"f13", label:"Müller / Bostrom" },
           ]
         },
         { id:"f2", label:"Сценарии",
           children:[
             { id:"f21", label:"Конвергенция" },
-            { id:"f22", label:"Прорыв" },
+            { id:"f22", label:"Арх. прорыв" },
             { id:"f23", label:"Сингулярность" },
           ]
         },
+        { id:"f3", label:"Факторы",
+          children:[
+            { id:"f31", label:"Технологические" },
+            { id:"f32", label:"Социальные / этические" },
+            { id:"f33", label:"Биологические" },
+          ]
+        },
+      ]
+    },
+    { id:"trans", label:"7. Анализ\nтрансформера",
+      children:[
+        { id:"t1", label:"Самовнимание\n(self-attention)" },
+        { id:"t2", label:"Многоголовое внимание" },
+        { id:"t3", label:"Позиц. кодирование" },
+        { id:"t4", label:"Кодер-декодер" },
+        { id:"t5", label:"Эмерджентные свойства" },
+        { id:"t6", label:"План экспериментов\n(ЛР №3)" },
+      ]
+    },
+    { id:"concl", label:"Заключение",
+      children:[
+        { id:"c1", label:"Противоречие 1:\nрезультаты vs понимание" },
+        { id:"c2", label:"Противоречие 2:\nмощность vs безопасность" },
+        { id:"c3", label:"Противоречие 3:\nглобальность vs нац. интересы" },
       ]
     },
   ]
@@ -246,7 +269,7 @@ function layoutHTree(tree) {
 function App() {
   const [hovered, setHovered] = useState(null);
   const [pan, setPan] = useState({ x: 0, y: 0 });
-  const [zoom, setZoom] = useState(0.82);
+  const [zoom, setZoom] = useState(0.72);
   const [dragging, setDragging] = useState(false);
   const lastPos = useRef({ x: 0, y: 0 });
   const svgRef = useRef(null);
