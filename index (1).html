@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Интеллект-карта: Подходы к разработке AGI</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.9/babel.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body,#root{width:100%;height:100%;overflow:hidden;font-family:'Outfit',sans-serif;background:#fff}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const { useState, useRef, useEffect, useCallback, useMemo } = React;
+
+const TREE = {
+  id:"root", label:"Подходы к разработке\nсильного ИИ (AGI)",
+  children:[
+    { id:"hist", label:"1. Исторический\nаспект",
+      children:[
+        { id:"h1", label:"Тест Тьюринга (1950)" },
+        { id:"h2", label:"Дартмут (1956)" },
+        { id:"h3", label:"Зимы ИИ (1974–80)" },
+        { id:"h4", label:"Кит. комната (Сёрл, 1980)" },
+        { id:"h5", label:"Термин AGI (Гёрцель, 2007)" },
+        { id:"hpar", label:"Парадигмы ИИ",
+          children:[
+            { id:"hp1", label:"Символическая" },
+            { id:"hp2", label:"Коннекционизм" },
+            { id:"hp3", label:"Стат. обучение" },
+            { id:"hp4", label:"Глубокое обучение" },
+            { id:"hp5", label:"Трансформер (2017)" },
+          ]
+        },
+      ]
+    },
+    { id:"def", label:"2. Определения\nи метрики",
+      children:[
+        { id:"dap", label:"Подходы к определению",
+          children:[
+            { id:"d1", label:"Антропоцентрическое" },
+            { id:"d2", label:"Формальное (Легг–Хаттер)" },
+            { id:"d3", label:"Операциональное (Гёрцель)" },
+            { id:"d4", label:"Эпистемол. (Митчелл)" },
+          ]
+        },
+        { id:"dtools", label:"Инструменты оценки",
+          children:[
+            { id:"dt1", label:"Уровни AGI (DeepMind)" },
+            { id:"dt2", label:"Мера Шолле / ARC" },
+            { id:"dt3", label:"Движущиеся ворота" },
+          ]
+        }
+      ]
+    },
+    { id:"app", label:"3. Современные\nподходы",
+      children:[
+        { id:"a1", label:"Масштабирование LLM",
+          children:[
+            { id:"a11", label:"Трансформер" },
+            { id:"a12", label:"GPT-4 / Gemini" },
+            { id:"a13", label:"Галлюцинации" },
+          ]
+        },
+        { id:"a2", label:"Нейросимвольные",
+          children:[
+            { id:"a21", label:"OpenCog" },
+            { id:"a22", label:"SOAR / ACT-R" },
+            { id:"a23", label:"Chain-of-Thought" },
+          ]
+        },
+        { id:"a3", label:"Обучение с подкрепл.",
+          children:[
+            { id:"a31", label:"Reward is Enough" },
+            { id:"a32", label:"AlphaGo / Zero" },
+            { id:"a33", label:"Проблемы целей" },
+          ]
+        },
+        { id:"a4", label:"Биоинспирированные",
+          children:[
+            { id:"a41", label:"JEPA (Лекун)" },
+            { id:"a42", label:"Мультимодальность" },
+            { id:"a43", label:"Нейроморфные чипы" },
+          ]
+        },
+      ]
+    },
+    { id:"prob", label:"4. Проблемы и\nограничения",
+      children:[
+        { id:"p1", label:"Технические",
+          children:[
+            { id:"p11", label:"Обобщение" },
+            { id:"p12", label:"Модель мира" },
+            { id:"p13", label:"Масштабирование" },
+            { id:"p14", label:"Выборка" },
+          ]
+        },
+        { id:"p2", label:"Безопасность",
+          children:[
+            { id:"p21", label:"Ортогональн. (Бостром)" },
+            { id:"p22", label:"Alignment (Рассел)" },
+            { id:"p23", label:"Bengio et al. (2024)" },
+          ]
+        },
+        { id:"p3", label:"Философские",
+          children:[
+            { id:"p31", label:"Сознание (Сёрл)" },
+            { id:"p32", label:"Контроль" },
+            { id:"p33", label:"Этика" },
+          ]
+        },
+      ]
+    },
+    { id:"who", label:"5. Кто занимается\nAGI",
+      children:[
+        { id:"w1", label:"Международные",
+          children:[
+            { id:"w11", label:"OpenAI" },
+            { id:"w12", label:"DeepMind" },
+            { id:"w13", label:"Anthropic" },
+            { id:"w14", label:"Meta AI" },
+            { id:"w15", label:"SingularityNET" },
+          ]
+        },
+        { id:"w2", label:"Российские",
+          children:[
+            { id:"w21", label:"AIRI" },
+            { id:"w22", label:"Сколтех" },
+            { id:"w23", label:"Нацстратегия 2030" },
+            { id:"w24", label:"Сбер / Яндекс" },
+          ]
+        },
+      ]
+    },
+    { id:"fut", label:"6. Перспективы\nразвития",
+      children:[
+        { id:"f1", label:"Прогнозы",
+          children:[
+            { id:"f11", label:"HLMI к 2047 (Grace)" },
+            { id:"f12", label:"Сдвиг на 13 лет" },
+            { id:"f13", label:"Müller / Bostrom" },
+          ]
+        },
+        { id:"f2", label:"Сценарии",
+          children:[
+            { id:"f21", label:"Конвергенция" },
+            { id:"f22", label:"Прорыв" },
+            { id:"f23", label:"Сингулярность" },
+          ]
+        },
+      ]
+    },
+  ]
+};
+
+function measureNode(label, depth) {
+  const lines = label.split("\n");
+  const fs = depth === 0 ? 14 : depth === 1 ? 11 : depth === 2 ? 10 : 9;
+  const maxChars = Math.max(...lines.map(l => l.length));
+  const w = Math.max(maxChars * fs * 0.56 + 28, 80);
+  const h = lines.length * fs * 1.35 + 14;
+  return { w, h };
+}
+
+function layoutHTree(tree) {
+  const allNodes = [];
+  const allEdges = [];
+  const VGAP = 6;
+  const HGAP = 32;
+
+  function subtreeH(node, depth) {
+    if (!node.children || !node.children.length) {
+      return measureNode(node.label, depth).h + VGAP;
+    }
+    let s = 0;
+    node.children.forEach(c => { s += subtreeH(c, depth + 1); });
+    return Math.max(s, measureNode(node.label, depth).h + VGAP);
+  }
+
+  function lay(node, cx, yTop, yBot, depth, dir) {
+    const sz = measureNode(node.label, depth);
+    const cy = (yTop + yBot) / 2;
+    allNodes.push({ id: node.id, x: cx, y: cy, w: sz.w, h: sz.h, label: node.label, depth });
+    if (!node.children || !node.children.length) return;
+
+    const heights = node.children.map(c => subtreeH(c, depth + 1));
+    const totalH = heights.reduce((a, b) => a + b, 0);
+    let curY = cy - totalH / 2;
+
+    node.children.forEach((child, i) => {
+      const csz = measureNode(child.label, depth + 1);
+      const childCx = cx + dir * (sz.w / 2 + HGAP + csz.w / 2);
+      const childYTop = curY;
+      const childYBot = curY + heights[i];
+      const childCy = (childYTop + childYBot) / 2;
+
+      allEdges.push({
+        from: node.id, to: child.id,
+        x1: cx + dir * sz.w / 2, y1: cy,
+        x2: childCx - dir * csz.w / 2, y2: childCy,
+      });
+      lay(child, childCx, childYTop, childYBot, depth + 1, dir);
+      curY = childYBot;
+    });
+  }
+
+  const rsz = measureNode(tree.label, 0);
+  allNodes.push({ id: tree.id, x: 0, y: 0, w: rsz.w, h: rsz.h, label: tree.label, depth: 0 });
+
+  const ch = tree.children || [];
+  const half = Math.ceil(ch.length / 2);
+  const leftCh = ch.slice(0, half);
+  const rightCh = ch.slice(half);
+
+  function layoutSide(children, dir) {
+    const heights = children.map(c => subtreeH(c, 1));
+    const totalH = heights.reduce((a, b) => a + b, 0);
+    let curY = -totalH / 2;
+    children.forEach((child, i) => {
+      const csz = measureNode(child.label, 1);
+      const cx = dir * (rsz.w / 2 + HGAP + csz.w / 2);
+      const yTop = curY;
+      const yBot = curY + heights[i];
+      const cy = (yTop + yBot) / 2;
+      allEdges.push({
+        from: tree.id, to: child.id,
+        x1: dir * rsz.w / 2, y1: 0,
+        x2: cx - dir * csz.w / 2, y2: cy,
+      });
+      lay(child, cx, yTop, yBot, 1, dir);
+      curY = yBot;
+    });
+  }
+
+  layoutSide(leftCh, -1);
+  layoutSide(rightCh, 1);
+
+  return { nodes: allNodes, edges: allEdges };
+}
+
+function App() {
+  const [hovered, setHovered] = useState(null);
+  const [pan, setPan] = useState({ x: 0, y: 0 });
+  const [zoom, setZoom] = useState(0.82);
+  const [dragging, setDragging] = useState(false);
+  const lastPos = useRef({ x: 0, y: 0 });
+  const svgRef = useRef(null);
+  const [dims, setDims] = useState({ w: window.innerWidth, h: window.innerHeight });
+
+  useEffect(() => {
+    const onResize = () => setDims({ w: window.innerWidth, h: window.innerHeight });
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, []);
+
+  const layout = useMemo(() => layoutHTree(TREE), []);
+
+  const getRelated = useCallback((id) => {
+    if (!id) return new Set();
+    const rel = new Set([id]);
+    const pm = {};
+    layout.edges.forEach(e => { pm[e.to] = e.from; });
+    let c = id;
+    while (pm[c]) { rel.add(pm[c]); c = pm[c]; }
+    const desc = (nid) => { layout.edges.forEach(e => { if (e.from === nid) { rel.add(e.to); desc(e.to); } }); };
+    desc(id);
+    return rel;
+  }, [layout.edges]);
+
+  const related = getRelated(hovered);
+
+  const handleWheel = useCallback((e) => {
+    e.preventDefault();
+    setZoom(z => Math.min(4, Math.max(0.15, z * (e.deltaY > 0 ? 0.92 : 1.08))));
+  }, []);
+  const onDown = useCallback((e) => {
+    if (e.button === 0) { setDragging(true); lastPos.current = { x: e.clientX, y: e.clientY }; }
+  }, []);
+  const onMove = useCallback((e) => {
+    if (dragging) {
+      setPan(p => ({ x: p.x + (e.clientX - lastPos.current.x) / zoom, y: p.y + (e.clientY - lastPos.current.y) / zoom }));
+      lastPos.current = { x: e.clientX, y: e.clientY };
+    }
+  }, [dragging, zoom]);
+  const onUp = useCallback(() => setDragging(false), []);
+
+  useEffect(() => {
+    const s = svgRef.current;
+    if (s) s.addEventListener("wheel", handleWheel, { passive: false });
+    return () => { if (s) s.removeEventListener("wheel", handleWheel); };
+  }, [handleWheel]);
+
+  return React.createElement("div", { style: { width:"100%", height:"100%", background:"#fff", position:"relative" } },
+    React.createElement("div", { style: { position:"absolute", top:14, left:18, zIndex:10, fontFamily:"'Outfit',sans-serif" } },
+      React.createElement("h1", { style: { fontSize:17, fontWeight:700, color:"#111", marginBottom:1 } }, "ИНТЕЛЛЕКТ-КАРТА АНАЛИТИЧЕСКОГО ОТЧЁТА"),
+      React.createElement("p", { style: { fontSize:11, color:"#999", fontWeight:300 } }, "Самарин А. С. — 2026  ·  Колёсико = масштаб  ·  Перетаскивание = навигация"),
+    ),
+    React.createElement("svg", {
+      ref: svgRef, width:"100%", height:"100%",
+      style: { cursor: dragging ? "grabbing" : "grab" },
+      onMouseDown: onDown, onMouseMove: onMove, onMouseUp: onUp, onMouseLeave: onUp,
+    },
+      React.createElement("g", {
+        transform: `translate(${dims.w/2},${dims.h/2}) scale(${zoom}) translate(${pan.x},${pan.y})`,
+      },
+        ...layout.edges.map(e => {
+          const hl = related.has(e.from) && related.has(e.to);
+          const mx = (e.x1 + e.x2) / 2;
+          return React.createElement("path", {
+            key: `${e.from}-${e.to}`,
+            d: `M${e.x1},${e.y1} C${mx},${e.y1} ${mx},${e.y2} ${e.x2},${e.y2}`,
+            fill: "none", stroke: hl ? "#222" : "#ccc",
+            strokeWidth: hl ? 1.8 : 0.8,
+            opacity: hovered ? (hl ? 1 : 0.25) : 0.6,
+            style: { transition: "all 0.12s" },
+          });
+        }),
+        ...layout.nodes.map(n => {
+          const hl = related.has(n.id);
+          const isRoot = n.depth === 0;
+          const lines = n.label.split("\n");
+          const fs = isRoot ? 14 : n.depth === 1 ? 11 : n.depth === 2 ? 10 : 9;
+          const fw = isRoot ? 700 : n.depth === 1 ? 600 : 400;
+          const bg = isRoot ? "#111" : "#fff";
+          const tc = isRoot ? "#fff" : "#111";
+          const brd = hovered ? (hl ? "#111" : "#e0e0e0") : (isRoot ? "#111" : n.depth === 1 ? "#555" : "#aaa");
+          const sw = isRoot ? 0 : hl ? 1.5 : 0.7;
+          const rx = isRoot ? 10 : n.depth === 1 ? 6 : 4;
+
+          return React.createElement("g", {
+            key: n.id,
+            transform: `translate(${n.x},${n.y})`,
+            onMouseEnter: () => setHovered(n.id),
+            onMouseLeave: () => setHovered(null),
+            style: { cursor:"pointer" },
+            opacity: hovered ? (hl ? 1 : 0.3) : 1,
+          },
+            React.createElement("rect", {
+              x: -n.w/2, y: -n.h/2, width: n.w, height: n.h, rx,
+              fill: bg, stroke: brd, strokeWidth: sw,
+              style: { transition:"all 0.12s" },
+            }),
+            ...lines.map((l, i) =>
+              React.createElement("text", {
+                key: i, x: 0,
+                y: -((lines.length-1)*fs*1.35)/2 + i*fs*1.35 + fs*0.35,
+                textAnchor:"middle", fill: tc, fontSize: fs, fontWeight: fw,
+                fontFamily:"'Outfit',sans-serif",
+                style: { pointerEvents:"none", userSelect:"none" },
+              }, l)
+            )
+          );
+        }),
+      )
+    ),
+  );
+}
+
+ReactDOM.render(React.createElement(App), document.getElementById("root"));
+</script>
+</body>
+</html>
